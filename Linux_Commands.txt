@@ -108,6 +108,15 @@ Unix/ Linux (Ubuntu)/ MacOS (Darwin-Unix) Commands
 
 
 
+
+
+
+
+
+
+
+
+
 Some MacOS Terminal Shortcuts:
 Ctrl + L: clear screen
 Cmd + K: clears terminal buffer
