@@ -26,7 +26,7 @@ int main(){
 #include <unistd.h>
 using namespace std;
 
-int main(argv[]){
+int main(char *argv[]){
   if (unlink(argv[1]) == 0)
     cout << "Removed";
   else
@@ -51,7 +51,7 @@ int main(argv[]){
 #include <iostream>
 #include <unistd.h>
 
-int main(argv[]){
+int main(char *argv[]){
   int fd;
   char ch;
 
@@ -97,32 +97,39 @@ int main(){
     if (isNumber){
       cout<<name;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   }  
 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <cstdlib>
+#include <iostream>
+#include <signal.h>
+using namespace std;
+
+int main(char *argv[]){
+  pid = atoi(argv[1]);
+  if (kill(pid, SIGKILL) == 0){
+    cout<< "Process Terminated";
+  }
 }
