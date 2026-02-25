@@ -133,3 +133,64 @@ int main(char *argv[]){
     cout<< "Process Terminated";
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+
+    int fd;
+    char ch;
+    int lines = 0, words = 0, characters = 0;
+    bool inWord = false;
+
+    fd = open(argv[1], O_RDONLY);
+
+    if (fd == -1)
+    {
+        cout << "Error: File not found" << endl;
+        return 1;
+    }
+
+    while (read(fd, &ch, 1) > 0)
+    {
+        characters++;
+
+        if (ch == '\n')
+            lines++;
+
+        if (ch == ' ' || ch == '\n' || ch == '\t')
+        {
+            inWord = false;
+        }
+        else if (!inWord)
+        {
+            words++;
+            inWord = true;
+        }
+    }
+
+    close(fd);
+
+    cout << "Lines: "      << lines      << endl;
+    cout << "Words: "      << words      << endl;
+    cout << "Characters: " << characters << endl;
+
+    return 0;
+}
