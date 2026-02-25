@@ -32,3 +32,43 @@ int main(argv[]){
   else
     cout << "Error";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <fcntl.h>
+#include <iostream>
+#include <unistd.h>
+
+int main(argv[]){
+  int fd;
+  char ch;
+
+  fd = open(argv[1], O_RDONLY)
+
+  if (fd == -1)
+    cout << "Error";
+  else{
+    while (read(fd, &ch, 1) > 0){
+      write(1, &ch, 1); 
+    }
+  }
+}
+
+
+
+
+
+
+
