@@ -22,3 +22,13 @@ int main(){
 
 
 
+#include <iostream>
+#include <unistd.h>
+using namespace std;
+
+int main(argv[]){
+  if (unlink(argv[1]) == 0)
+    cout << "Removed";
+  else
+    cout << "Error";
+}
