@@ -578,3 +578,81 @@ int main()
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+using namespace std;
+
+// Counting Semaphore (value = 0 to N)
+struct CountingSemaphore
+{
+    int S;
+    mutex mtx;
+
+    CountingSemaphore(int n) { S = n; }  // set how many allowed at once
+
+    void wait()
+    {
+        while (true)
+        {
+            mtx.lock();
+            if (S > 0) { S--; mtx.unlock(); return; }
+            mtx.unlock();
+            this_thread::sleep_for(chrono::milliseconds(10));
+        }
+    }
+
+    void signal()
+    {
+        mtx.lock();
+        S++;
+        mtx.unlock();
+    }
+};
+
+CountingSemaphore sem(3);  // allow 3 processes at once (e.g. 3 printers)
+
+void process(int id)
+{
+    sem.wait();
+
+    cout << "Process " << id << " USING resource\n";
+    this_thread::sleep_for(chrono::milliseconds(500));
+    cout << "Process " << id << " DONE with resource\n";
+
+    sem.signal();
+}
+
+int main()
+{
+    thread t1(process, 1);
+    thread t2(process, 2);
+    thread t3(process, 3);
+    thread t4(process, 4);
+    thread t5(process, 5);
+
+    t1.join(); t2.join(); t3.join();
+    t4.join(); t5.join();
+
+    return 0;
+}
