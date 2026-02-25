@@ -194,3 +194,181 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int n;
+    cout << "Enter number of processes: ";
+    cin >> n;
+
+    int pid[n], bt[n], at[n];
+    int rem[n], ct[n];
+    bool done[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Enter PID, Burst Time, Arrival Time: ";
+        cin >> pid[i] >> bt[i] >> at[i];
+        rem[i] = bt[i];
+        done[i] = false;
+    }
+
+    int t = 0, completed = 0;
+    int gantt[1000];  // stores which PID runs at each time unit
+
+    while (completed < n)
+    {
+        // Find process with shortest remaining time that has arrived
+        int idx = -1;
+        int shortest = 99999;
+
+        for (int i = 0; i < n; i++)
+        {
+            if (!done[i] && at[i] <= t && rem[i] < shortest)
+            {
+                shortest = rem[i];
+                idx = i;
+            }
+        }
+
+        if (idx == -1)  // no process has arrived yet, CPU idle
+        {
+            gantt[t] = -1;
+            t++;
+            continue;
+        }
+
+        // Run selected process for 1 unit
+        gantt[t] = pid[idx];
+        rem[idx]--;
+        t++;
+
+        // If process finished
+        if (rem[idx] == 0)
+        {
+            ct[idx] = t;
+            done[idx] = true;
+            completed++;
+        }
+    }
+
+    // Calculate TAT and WT
+    int tat[n], wt[n];
+    float avgTAT = 0, avgWT = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        tat[i] = ct[i] - at[i];
+        wt[i]  = tat[i] - bt[i];
+        avgTAT += tat[i];
+        avgWT  += wt[i];
+    }
+
+    avgTAT /= n;
+    avgWT  /= n;
+
+    // Print Gantt Chart
+    cout << "\nGantt Chart:\n";
+    int i = 0;
+    while (i < t)
+    {
+        int j = i;
+        while (j < t && gantt[j] == gantt[i]) j++;  // find how long same PID ran
+        if (gantt[i] == -1)
+            cout << "| IDLE ";
+        else
+            cout << "| P" << gantt[i] << " ";
+        i = j;
+    }
+    cout << "|\n";
+
+    // Print timeline
+    i = 0;
+    cout << "0";
+    while (i < t)
+    {
+        int j = i;
+        while (j < t && gantt[j] == gantt[i]) j++;
+        cout << "\t" << j;
+        i = j;
+    }
+    cout << "\n";
+
+    // Print Table
+    cout << "\nPID\tAT\tBT\tCT\tTAT\tWT\n";
+    for (int i = 0; i < n; i++)
+    {
+        cout << pid[i] << "\t" << at[i] << "\t" << bt[i] << "\t"
+             << ct[i] << "\t" << tat[i] << "\t" << wt[i] << "\n";
+    }
+
+    cout << "\nAverage TAT: " << avgTAT;
+    cout << "\nAverage WT:  " << avgWT << "\n";
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
