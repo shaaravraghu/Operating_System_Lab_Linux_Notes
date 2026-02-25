@@ -1,0 +1,24 @@
+#include <iostream>
+#include <dirent.h>
+using namespace std;
+
+int main(){
+  DIR *dir;
+  struct dir *entry;
+
+  dir = opendir(".");
+
+  while((entry = readdir(dir)) != NULL){
+    string name = entry->d_name;
+    if (entry != "." && entry != "..")
+      cout << name << endl;
+  }  
+
+}
+
+
+
+
+
+
+
