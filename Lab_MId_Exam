@@ -72,3 +72,57 @@ int main(argv[]){
 
 
 
+#include <iostream>
+#include <cctype>
+#include <dirent.h>
+using namespace std;
+
+int main(){
+  DIR *dir;
+  struct dir *entry;
+
+  dir = opendir("/proc");
+
+  while((entry = readdir(dir)) != NULL){
+    string name = entry->d_name;
+
+    bool isNumber = true;
+    for (char c : name){
+      if (!isdigit(c)){
+        isNumber = false;
+        break;
+      }
+    }
+
+    if (isNumber){
+      cout<<name;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }  
+
+}
