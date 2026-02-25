@@ -372,3 +372,153 @@ int main()
 
 
 
+#include <iostream>
+#include <queue>
+using namespace std;
+
+int main()
+{
+    int n, quantum;
+    cout << "Enter number of processes: ";
+    cin >> n;
+    cout << "Enter time quantum: ";
+    cin >> quantum;
+
+    int pid[n], bt[n], at[n];
+    int rem[n], ct[n];
+    bool inQueue[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Enter PID, Burst Time, Arrival Time: ";
+        cin >> pid[i] >> bt[i] >> at[i];
+        rem[i] = bt[i];
+        inQueue[i] = false;
+    }
+
+    // Sort by arrival time
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (at[j] > at[j + 1])
+            {
+                swap(at[j], at[j+1]);
+                swap(bt[j], bt[j+1]);
+                swap(pid[j], pid[j+1]);
+                swap(rem[j], rem[j+1]);
+            }
+
+    queue<int> q;  // stores index of process
+    int t = 0, completed = 0;
+
+    // Gantt chart storage
+    int ganttPID[1000], ganttStart[1000], ganttEnd[1000];
+    int g = 0;
+
+    // Add first process
+    q.push(0);
+    inQueue[0] = true;
+
+    while (completed < n)
+    {
+        if (q.empty())  // CPU idle, jump to next arrival
+        {
+            for (int i = 0; i < n; i++)
+            {
+                if (!inQueue[i] && rem[i] > 0)
+                {
+                    t = at[i];
+                    q.push(i);
+                    inQueue[i] = true;
+                    break;
+                }
+            }
+        }
+
+        int idx = q.front();
+        q.pop();
+
+        // Run for min(quantum, remaining)
+        int runTime = min(quantum, rem[idx]);
+
+        ganttPID[g]   = pid[idx];
+        ganttStart[g] = t;
+        t += runTime;
+        ganttEnd[g]   = t;
+        g++;
+
+        rem[idx] -= runTime;
+
+        // Add newly arrived processes to queue
+        for (int i = 0; i < n; i++)
+            if (!inQueue[i] && at[i] <= t && rem[i] > 0)
+            {
+                q.push(i);
+                inQueue[i] = true;
+            }
+
+        // If not done, push back
+        if (rem[idx] > 0)
+            q.push(idx);
+        else
+        {
+            ct[idx] = t;
+            completed++;
+        }
+    }
+
+    // Calculate TAT and WT
+    int tat[n], wt[n];
+    float avgTAT = 0, avgWT = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        tat[i] = ct[i] - at[i];
+        wt[i]  = tat[i] - bt[i];
+        avgTAT += tat[i];
+        avgWT  += wt[i];
+    }
+
+    avgTAT /= n;
+    avgWT  /= n;
+
+    // Print Gantt Chart
+    cout << "\nGantt Chart:\n";
+    for (int i = 0; i < g; i++)
+        cout << "| P" << ganttPID[i] << " ";
+    cout << "|\n";
+
+    cout << ganttStart[0];
+    for (int i = 0; i < g; i++)
+        cout << "\t" << ganttEnd[i];
+    cout << "\n";
+
+    // Print Table
+    cout << "\nPID\tAT\tBT\tCT\tTAT\tWT\n";
+    for (int i = 0; i < n; i++)
+        cout << pid[i] << "\t" << at[i] << "\t" << bt[i] << "\t"
+             << ct[i] << "\t" << tat[i] << "\t" << wt[i] << "\n";
+
+    cout << "\nAverage TAT: " << avgTAT;
+    cout << "\nAverage WT:  " << avgWT << "\n";
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
