@@ -522,3 +522,59 @@ int main()
 
 
 
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+using namespace std;
+
+// Binary Semaphore (value = 0 or 1)
+struct BinarySemaphore
+{
+    int S = 1;
+    mutex mtx;
+
+    void wait()
+    {
+        while (true)
+        {
+            mtx.lock();
+            if (S > 0) { S--; mtx.unlock(); return; }
+            mtx.unlock();
+            this_thread::sleep_for(chrono::milliseconds(10));
+        }
+    }
+
+    void signal()
+    {
+        mtx.lock();
+        S = 1;
+        mtx.unlock();
+    }
+};
+
+BinarySemaphore sem;
+
+void process(int id)
+{
+    sem.wait();                  // lock — entry
+
+    cout << "Process " << id << " ENTERED critical section\n";
+    this_thread::sleep_for(chrono::milliseconds(500));  // simulate work
+    cout << "Process " << id << " LEAVING critical section\n";
+
+    sem.signal();                // unlock — exit
+}
+
+int main()
+{
+    thread t1(process, 1);
+    thread t2(process, 2);
+    thread t3(process, 3);
+
+    t1.join();
+    t2.join();
+    t3.join();
+
+    return 0;
+}
