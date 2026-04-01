@@ -173,3 +173,82 @@ int main() {
 
 
 
+// Producer-Consumer Problem
+#include <iostream>
+#include <pthread.h>
+#include <unistd.h>
+using namespace std;
+
+#define BUFFER_SIZE 5
+
+int buffer[BUFFER_SIZE];
+int in = 0, out = 0;
+
+pthread_mutex_t mutex;
+pthread_mutex_t full;   // acts as counting semaphore for full slots
+pthread_mutex_t empty;  // acts as counting semaphore for empty slots
+
+int fullCount = 0;
+int emptyCount = BUFFER_SIZE;
+
+void* producer(void* arg) {
+    int item = 0;
+    while (true) {
+        item++;
+
+        // Wait if buffer is full
+        while (fullCount == BUFFER_SIZE);  // busy wait
+
+        pthread_mutex_lock(&mutex);
+
+        buffer[in] = item;
+        in = (in + 1) % BUFFER_SIZE;
+        fullCount++;
+        emptyCount--;
+        cout << "Produced: " << item << endl;
+
+        pthread_mutex_unlock(&mutex);
+
+        sleep(1);
+    }
+}
+
+void* consumer(void* arg) {
+    while (true) {
+
+        // Wait if buffer is empty
+        while (emptyCount == BUFFER_SIZE);  // busy wait
+
+        pthread_mutex_lock(&mutex);
+
+        int item = buffer[out];
+        out = (out + 1) % BUFFER_SIZE;
+        fullCount--;
+        emptyCount++;
+        cout << "Consumed: " << item << endl;
+
+        pthread_mutex_unlock(&mutex);
+
+        sleep(2);
+    }
+}
+
+int main() {
+    pthread_t prod, cons;
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&full, NULL);
+    pthread_mutex_init(&empty, NULL);
+
+    pthread_create(&prod, NULL, producer, NULL);
+    pthread_create(&cons, NULL, consumer, NULL);
+
+    pthread_join(prod, NULL);
+    pthread_join(cons, NULL);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&full);
+    pthread_mutex_destroy(&empty);
+
+    return 0;
+}
