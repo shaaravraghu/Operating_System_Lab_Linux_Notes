@@ -18,7 +18,7 @@ int main() {
     int pageFaults = 0;
     int pointer = 0;  // points to the oldest page (next to evict)
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) { // i is parsing the page reference string
         int page = pages[i];
 
         // Check if page is already in memory
@@ -28,9 +28,8 @@ int main() {
         }
 
         if (!found) {
-            // Page fault — replace at pointer position
-            memory[pointer] = page;
-            pointer = (pointer + 1) % frames;  // move pointer circularly
+            // Page fault — replace at pageFault position
+            memory[pageFaults % frames] = page;
             pageFaults++;
             cout << "Page " << page << " loaded  -> Page Fault\n";
         } else {
