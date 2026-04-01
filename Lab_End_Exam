@@ -80,3 +80,96 @@ int main() {
 
   return 0;
 }
+
+
+
+
+
+
+
+
+// Readers-Writers Problem
+#include <iostream>
+#include <pthread.h>
+#include <unistd.h>
+using namespace std;
+
+int readerCount = 0;
+int sharedData = 0;
+
+pthread_mutex_t mutex;       // protects readerCount
+pthread_mutex_t writeLock;   // prevents writers when readers are active
+
+void* reader(void* arg) {
+    int id = *(int*)arg;
+
+    while (true) {
+        // Entry
+        pthread_mutex_lock(&mutex);
+        readerCount++;
+        if (readerCount == 1)
+            pthread_mutex_lock(&writeLock);  // first reader blocks writers
+        pthread_mutex_unlock(&mutex);
+
+        // Reading
+        cout << "Reader " << id << " reads: " << sharedData << endl;
+
+        // Exit
+        pthread_mutex_lock(&mutex);
+        readerCount--;
+        if (readerCount == 0)
+            pthread_mutex_unlock(&writeLock);  // last reader unblocks writers
+        pthread_mutex_unlock(&mutex);
+
+        sleep(1);
+    }
+}
+
+void* writer(void* arg) {
+    int id = *(int*)arg;
+
+    while (true) {
+        pthread_mutex_lock(&writeLock);
+
+        // Writing
+        sharedData++;
+        cout << "Writer " << id << " writes: " << sharedData << endl;
+
+        pthread_mutex_unlock(&writeLock);
+
+        sleep(2);
+    }
+}
+
+int main() {
+    pthread_t r[3], w[2];
+    int rId[3] = {1, 2, 3};
+    int wId[2] = {1, 2};
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&writeLock, NULL);
+
+    for (int i = 0; i < 3; i++) pthread_create(&r[i], NULL, reader, &rId[i]);
+    for (int i = 0; i < 2; i++) pthread_create(&w[i], NULL, writer, &wId[i]);
+
+    for (int i = 0; i < 3; i++) pthread_join(r[i], NULL);
+    for (int i = 0; i < 2; i++) pthread_join(w[i], NULL);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&writeLock);
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
